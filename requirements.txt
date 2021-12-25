@@ -1,0 +1,7 @@
+pytube
+youtube_dl
+vosk
+pydub
+noisereduce
+spicy
+numpy
