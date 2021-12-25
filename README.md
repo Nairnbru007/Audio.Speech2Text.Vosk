@@ -23,6 +23,7 @@
 python3 model_prepare.py
 ```
 Далее загрузите с сайта https://pytorch.org подходящую для вашего оборудования библиотеку torch.
+
 Далее установите рекомендуемые библитеотеки.
 ```sh
 pip3 install -r requirements.txt
