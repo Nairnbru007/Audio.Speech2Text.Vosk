@@ -31,3 +31,5 @@ def model_init(language='en'):
 			subprocess.call(['mv','vosk-model-en-us-0.22', 'model'])
 			#!mv vosk-model-en-us-0.22 model
 			os.remove('vosk-model-ru-0.22.zip')
+			
+model_init('en')
