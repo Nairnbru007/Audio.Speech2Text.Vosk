@@ -22,7 +22,7 @@ import websockets
 
 
 async def run_test(uri,file_name):
-    list_output=[]	
+    list_output=[]      
     async with websockets.connect(uri) as websocket:
         file = file_name
         sound = AudioSegment.from_mp3(file)
@@ -49,20 +49,43 @@ async def run_test(uri,file_name):
         list_output.append(await websocket.recv())
     return list_output
 
-
 def recognize_server(str_wav:str):
-	asyncio.get_event_loop().run_until_complete(temp=run_test('ws://localhost:2700',str_wav))
-	return temp
+   result = asyncio.get_event_loop().run_until_complete(run_test('ws://localhost:2700',str_wav))
+   print(result)
+   final = {"result":[],"text":""}
+   count=0
+   for i in result:
+                i=json.loads(i) #print(i)
+                try: 
+                        i["result"]
+                        print(i["result"])
+                except: 
+                        result.pop(count)
+                        print('---del---')
+                else:
+                        temp1=i["result"]
+                        for elem in temp1:
+                                print(elem)  ##
+                                final["result"].append(elem) ##
+                        temp2=i["text"]
+                        final["text"]=final["text"]+ " " + temp2 + '.'
+                count += 1
+                print(count)
+                #print(i)
+   final = json.dumps(final,ensure_ascii=False)
 
-def recogn_to_jsonfile(file_path,server=False):
+   return final
+
+def recogn_to_jsonfile(file_path,server=True):
   #file_path = "/content/data/ledenets.wav"
   if server==False:
-  	fin = recognize(file_path)
+   fin = recognize(file_path)
   else:
-	fin = recognize_server(file_path)
+   fin = recognize_server(file_path)
   #fin = recognize_without_all(file_path)
   with open(file_path.split('.')[0]+'.json', 'w') as outfile:
     json.dump(fin, outfile)
+  
     
     
 def txt2dict1(file):
