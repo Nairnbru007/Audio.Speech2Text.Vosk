@@ -139,7 +139,7 @@ async def run_test(uri,file_name):
         file = file_name
         sound = AudioSegment.from_mp3(file)
         sound.export(file.split('.')[0]+".wav", format="wav")
-        subprocess.call(['sox','-t','wav',file.split('.')[0]+".wav", file.split('.')[0]+"___ready___.wav", 'remix'>
+        subprocess.call(['sox','-t','wav',file.split('.')[0]+".wav", file.split('.')[0]+"___ready___.wav", 'remix', '1,2','gain', '-1', 'rate', '44100', 'dither', '-s'])
         #file=file.split('.')[0]+"___ready___.wav"
         file=file.split('.')[0]+".wav"
 
