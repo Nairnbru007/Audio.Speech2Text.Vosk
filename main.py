@@ -18,7 +18,7 @@ import os
 from scipy.io import wavfile
 import time
 import numpy
-from youtube_dl import YoutubeDL
+#from youtube_dl import YoutubeDL
 import subprocess
 from pydub import AudioSegment
 from pydub.silence import split_on_silence,detect_silence,detect_leading_silence
@@ -120,6 +120,52 @@ def recognize(str_wav:str):
 	wf.close()
 	return final
 
+
+
+
+
+
+
+import asyncio
+import websockets
+import sys
+import subprocess
+#from pydub import AudioSegment
+
+
+async def run_test(uri,file_name):
+    list_output=[]	
+    async with websockets.connect(uri) as websocket:
+        file = file_name
+        sound = AudioSegment.from_mp3(file)
+        sound.export(file.split('.')[0]+".wav", format="wav")
+        subprocess.call(['sox','-t','wav',file.split('.')[0]+".wav", file.split('.')[0]+"___ready___.wav", 'remix'>
+        #file=file.split('.')[0]+"___ready___.wav"
+        file=file.split('.')[0]+".wav"
+
+
+        wf = open(file, "rb")
+        #wrf = open(file.split('.')[0]+'__result.txt','w') 
+        while True:
+            data = wf.read(8000)
+
+            if len(data) == 0:
+                break
+
+            await websocket.send(data)
+            #print (await websocket.recv(),file=wrf)
+            list_output.append(await websocket.recv())
+
+        await websocket.send('{"eof" : 1}')
+        #print (await websocket.recv())
+        list_output.append(await websocket.recv())
+    return list_output
+
+
+def recognize_server(str_wav:str):
+	asyncio.get_event_loop().run_until_complete(temp=run_test('ws://localhost:2700',str_wav))
+	return temp
+
 def recognize_without_all(str_wav:str):
 	#SetLogLevel(0)
 	if not os.path.exists("model"):
@@ -179,9 +225,12 @@ def recognize_without_all(str_wav:str):
 	return final
 
 #распознать и сохранить в папке datajson json файл
-def recogn_to_jsonfile(file_path):
+def recogn_to_jsonfile(file_path,server=False):
   #file_path = "/content/data/ledenets.wav"
-  fin = recognize(file_path)
+  if server==False:
+  	fin = recognize(file_path)
+  else:
+	fin = recognize_server(file_path)
   #fin = recognize_without_all(file_path)
   with open(file_path.split('.')[0]+'.json', 'w') as outfile:
     json.dump(fin, outfile)
@@ -350,30 +399,30 @@ def mono_wav(file):
 
 #gain -1 rate 44100 dither -s
 #Закачка из ютуба
-def ytb_d(url, file=""):
-  if file!="":
-      file=str(time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()))+'_'+url.split('/')[-1]+'.wav'
-  ydl_opts = {
-    'format': 'bestaudio/best',
-    'outtmpl': file,
-    'keepvideo': False,
-    'postprocessors': [{
-        'key': 'FFmpegExtractAudio',
-        'preferredcodec': 'wav',
-        'preferredquality': '192',
-      }],
-  }
-  try:
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            ydl.cache.remove()
-            info_dict = ydl.extract_info(url, download=False)
-            ydl.prepare_filename(info_dict)
-            ydl.download([url])
-            return True
-  except Exception:
-        return False 
-  #with YoutubeDL(ydl_opts) as ydl:
-  #  ydl.download([url])
+# def ytb_d(url, file=""):
+#   if file!="":
+#       file=str(time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()))+'_'+url.split('/')[-1]+'.wav'
+#   ydl_opts = {
+#     'format': 'bestaudio/best',
+#     'outtmpl': file,
+#     'keepvideo': False,
+#     'postprocessors': [{
+#         'key': 'FFmpegExtractAudio',
+#         'preferredcodec': 'wav',
+#         'preferredquality': '192',
+#       }],
+#   }
+#   try:
+#         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+#             ydl.cache.remove()
+#             info_dict = ydl.extract_info(url, download=False)
+#             ydl.prepare_filename(info_dict)
+#             ydl.download([url])
+#             return True
+#   except Exception:
+#         return False 
+#   #with YoutubeDL(ydl_opts) as ydl:
+#   #  ydl.download([url])
 
 def to_up(text):
     trigger=True
@@ -490,7 +539,7 @@ def start_work(file,noise_reduce=False,cutting=False):
               json.dump(glob_mass, outfile)
           print("--- %s seconds ---" % (time.time() - start_time))
       else:    
-          recogn_to_jsonfile(file.split('.')[0]+"___ready___.wav")
+          recogn_to_jsonfile(file.split('.')[0]+"___ready___.wav",server=True)
           print("--- %s seconds ---" % (time.time() - start_time))
           print('punctuation........')
           start_time = time.time()
@@ -604,9 +653,9 @@ def compare_result(json_file,text_file):
         #print(i)
     return result
 
-def yotube_to_text(url):
-    file=str(time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()))+'_'+url.split('/')[-1]+'.wav'
-    if ytb_d(url,file)==False:
-        print('Error Downloads from Youtube')
-    else: start_work(file)
+# def yotube_to_text(url):
+#     file=str(time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()))+'_'+url.split('/')[-1]+'.wav'
+#     if ytb_d(url,file)==False:
+#         print('Error Downloads from Youtube')
+#     else: start_work(file)
 
