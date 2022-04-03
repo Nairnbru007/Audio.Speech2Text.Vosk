@@ -50,6 +50,8 @@ async def run_test(uri,file_name):
     return list_output
 
 def recognize_server(str_wav:str):
+   loop = asyncio.new_event_loop()
+   asyncio.set_event_loop(loop)
    result = asyncio.get_event_loop().run_until_complete(run_test('ws://localhost:2700',str_wav))
    print(result)
    final = {"result":[],"text":""}
