@@ -304,12 +304,14 @@ def start_work(file,noise_reduce=False,cutting=False):
       subprocess.call(['ffmpeg','-i',file, '-ab', '160k', '-ac','2', '-ar', '44100', '-vn', file.split('.')[0]+'.wav'])
       file=file.split('.')[0]+".wav"
       print("--- %s seconds ---" % (time.time() - start_time))
+      start_work(file,noise_reduce=noise_reduce,cutting=cutting)
     elif ".mp4" in file:  
       start_time = time.time()
       print('converting the file.....')
       subprocess.call(['ffmpeg','-i',file, '-ab', '160k', '-ac','2', '-ar', '44100', '-vn', file.split('.')[0]+'.wav'])
       file=file.split('.')[0]+".wav"
       print("--- %s seconds ---" % (time.time() - start_time))
+      start_work(file,noise_reduce=noise_reduce,cutting=cutting)
       
       
 def compare_result(json_file,text_file):
