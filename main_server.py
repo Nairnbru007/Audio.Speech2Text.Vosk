@@ -25,17 +25,19 @@ async def run_test(uri,file_name):
     list_output=[]      
     async with websockets.connect(uri) as websocket:
         file = file_name
-        sound = AudioSegment.from_mp3(file)
-        sound.export(file.split('.')[0]+".wav", format="wav")
-        subprocess.call(['sox','-t','wav',file.split('.')[0]+".wav", file.split('.')[0]+"___ready___.wav", 'remix', '1,2','gain', '-1', 'rate', '44100', 'dither', '-s'])
-        #file=file.split('.')[0]+"___ready___.wav"
-        file=file.split('.')[0]+".wav"
+        #sound = AudioSegment.from_mp3(file)
+        #sound.export(file.split('.')[0]+".wav", format="wav")
+	#wav to mono
+        #subprocess.call(['sox','-t','wav',file.split('.')[0]+".wav", file.split('.')[0]+"___ready___.wav", 'remix', '1,2','gain', '-1', 'rate', '44100', 'dither', '-s'])
+        #mono_wav(file)
+	#file=file.split('.')[0]+"___ready___.wav"
+        #file=file.split('.')[0]+".wav"
 
 
         wf = open(file, "rb")
         #wrf = open(file.split('.')[0]+'__result.txt','w') 
         while True:
-            data = wf.read(8000)
+            data = wf.read(4000)
 
             if len(data) == 0:
                 break
@@ -261,7 +263,6 @@ def start_work(file,noise_reduce=False,cutting=False):
       print("--- %s seconds ---" % (time.time() - start_time))
       print('recognizing........')
       start_time = time.time()
-      
       
       
       recogn_to_jsonfile(file.split('.')[0]+"___ready___.wav",server=True)
