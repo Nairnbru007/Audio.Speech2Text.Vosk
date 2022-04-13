@@ -5,3 +5,6 @@ pydub
 noisereduce
 spicy
 numpy
+flask
+flask_cors
+flask_restx
