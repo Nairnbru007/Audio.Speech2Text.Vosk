@@ -25,19 +25,12 @@ async def run_test(uri,file_name):
     list_output=[]      
     async with websockets.connect(uri) as websocket:
         file = file_name
-        #sound = AudioSegment.from_mp3(file)
-        #sound.export(file.split('.')[0]+".wav", format="wav")
-	#wav to mono
-        #subprocess.call(['sox','-t','wav',file.split('.')[0]+".wav", file.split('.')[0]+"___ready___.wav", 'remix', '1,2','gain', '-1', 'rate', '44100', 'dither', '-s'])
-        #mono_wav(file)
-	#file=file.split('.')[0]+"___ready___.wav"
-        #file=file.split('.')[0]+".wav"
 
-
-        wf = open(file, "rb")
-        #wrf = open(file.split('.')[0]+'__result.txt','w') 
+        wf = wave.open(file, "rb")
+	await websocket.send('{ "config" : { "semple_rate" : %d } }' % (wf.getframerate()))
+	buffer_size = int(wf.getframerate() * 0.2)
         while True:
-            data = wf.read(4000)
+            data = wf.read(buffer_size)
 
             if len(data) == 0:
                 break
