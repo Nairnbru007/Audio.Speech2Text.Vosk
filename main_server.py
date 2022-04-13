@@ -27,8 +27,8 @@ async def run_test(uri,file_name):
         file = file_name
 
         wf = wave.open(file, "rb")
-	await websocket.send('{ "config" : { "semple_rate" : %d } }' % (wf.getframerate()))
-	buffer_size = int(wf.getframerate() * 0.2)
+        await websocket.send('{ "config" : { "sample_rate" : %d } }' % (wf.getframerate()))
+        buffer_size = int(wf.getframerate() * 0.2)
         while True:
             data = wf.read(buffer_size)
 
