@@ -30,7 +30,7 @@ async def run_test(uri,file_name):
         await websocket.send('{ "config" : { "sample_rate" : %d } }' % (wf.getframerate()))
         buffer_size = int(wf.getframerate() * 0.2)
         while True:
-            data = wf.read(buffer_size)
+            data = wf.readframes(buffer_size)
 
             if len(data) == 0:
                 break
