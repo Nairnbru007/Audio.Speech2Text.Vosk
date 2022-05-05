@@ -168,9 +168,9 @@ def main_qnt(file):
   
 def punct(text):
   #punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
-	punctuations = '''!()---[]{};:"\,<>./?@#$%^&*_~'''
+	punctuations = '''!()[]{};:"\,<>./?@#$%^&*_~'''#'''!()---[]{};:"\,<>./?@#$%^&*_~'''
 	punctuation_replace = '!:;.?'
-	alphabet = "'"+'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+	alphabet = "'---"+'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 	inp_str = text
 	no_punc = ""
 	last=""
@@ -200,7 +200,7 @@ def punct(text):
 				else:
 					pass
 			else:
-				pass
+				no_punc = no_punc + ' '#pass
 	return no_punc
 
 
@@ -233,6 +233,7 @@ def to_up(text):
             trigger=False
         text_=text_+temp
     return text_
+
 
 import shutil
 
@@ -308,7 +309,7 @@ def start_work(file,noise_reduce=False,cutting=False):
       start_work(file,noise_reduce=noise_reduce,cutting=cutting)
       
       
-def compare_result(json_file,text_file):
+def compare_result_(json_file,text_file):
     txt = punct(punct(open(text_file,'r').read()).lower())
     print(txt)
     mass = json.loads(open(json_file,"r").read())
@@ -334,3 +335,96 @@ def compare_result(json_file,text_file):
         result.append({'name':i,'precision': len(good)/(len(good)+len(lishnie)),'recal':len(good)/(len(good)+len(ne_obn))})#,'text':mass[i]})
     return result
     
+#сравнения данных  
+#'text_vosk', 'text_vosk_neuro' 'text_vosk_main_avg' 'text_vosk_main_qnt'
+def compare_result(json_file,text_file):
+    txt = punct(punct(open(text_file,'r').read()).lower())
+    print(txt)
+    mass = json.loads(open(json_file,"r").read())
+    diff=[]
+    diff_words=[]
+    result=[]
+    t_o=[]
+    for k in txt.split('.'):
+        t_o.append(k.replace(' ','')[0:3])
+    for i in mass:
+        t_v=[]
+        print(mass[i])
+        
+        for k in punct(mass[i]).split('.'):
+            t_v.append(k.replace(' ','')[0:3])
+
+
+        ne_obn = list(set(t_o[:]) - set(t_v[:]))
+        lishnie = list(set(t_v[:]) - set(t_o[:]))
+        good = list(set(t_o[:]) & set(t_v[:]))
+        count_orig = list(t_o[:])
+        count_alg = list(t_v[:]) 
+
+        diff.append({'name':i,'ne_obn':len(ne_obn), 'lishnie':len(lishnie), 'good':len(good), 'count_orig': len(count_orig), 'count_alg': len(count_alg)})
+        diff_words.append({'name':i,'ne_obn':ne_obn, 'lishnie':lishnie, 'good':good, 'count_orig':count_orig, 'count_alg': count_alg})
+        result.append({'name':i,'precision': len(good)/(len(good)+len(lishnie)),'recal':len(good)/(len(good)+len(ne_obn))})#,'text':mass[i]})
+    return result
+
+def count_word(word):
+    if word in total_count:
+        total_count[word] += 1
+    else:
+        total_count[word] = 1
+	
+def compare_texts(text_vosk, text_other):
+    name=text_other
+    text_other_text = re.sub(re.compile('<.*?>'), ' ', open(text_other,'r').read())
+    text_other_text = text_other_text.replace('Subtitles by Red Bee Media Ltd','').replace('E-mail subtitling@bbc.co.uk','').replace('Email subtitling@bbc.co.uk','').replace('WEBVTT','')
+    text_other_text = text_other_text.replace('\n',' ').replace('--',' ')
+    #print(text_other_text)
+    
+    txt_vosk = punct(punct( open(text_vosk,'r').read() ).lower()).replace('.','').replace('  ',' ')
+    txt_other = punct(punct( text_other_text ).lower()).replace('.','').replace(" '",' ').replace("' "," ").replace("'s ", " ").replace("'ll ", " will").replace('  ',' ')
+    
+    #print(txt_other)
+    
+    #txt_other = punct(punct(open(text_other,'r').read() ).lower()).replace('.','').replace('  ',' ')
+    total_count_vosk = Counter([''.join(filter(str, x.lower())) for x in txt_vosk.split() if ''.join(filter(str.isalpha, x.lower()))])
+    total_count_other = Counter([''.join(filter(str, x.lower())) for x in txt_other.split() if ''.join(filter(str.isalpha, x.lower()))])
+    #print(total_count_other)
+    similarity={}
+    difference={}
+    only_vosk_find={}
+    only_other_find={}
+    for i in total_count_vosk:
+        if total_count_other[i]:
+            if total_count_vosk[i] != total_count_other[i]:
+                difference[i]=[total_count_vosk[i],total_count_other[i]]
+            else:
+                similarity[i]=[total_count_vosk[i],total_count_other[i]]
+        else:
+            only_vosk_find[i]=total_count_vosk[i]
+            difference[i]=[total_count_vosk[i],0]
+    for i in total_count_other:
+        if not total_count_vosk[i]:
+            only_other_find[i]=total_count_other[i]
+            difference[i]=[0,total_count_other[i]]
+            #print(difference[i])
+    print('Название файла:')
+    print(name)
+    print('Количество уникальных слов в сравниваемых текстах')
+    print({'vosk':len(total_count_vosk),'other':len(total_count_other)})
+    print('Количество уникальных слов с одинаковыми частотами встречаемости в обоих текстах')
+    print(str( len(similarity) ))
+    print('\n')
+    print('Количество различий в частотах встречаемости уникальных слов данных текстов(с учетом отсутствия в том или ином тексте)')
+    print(str(len(difference)))
+    #print('\n')
+    print('Из них:')
+    print('  Количество уникальных слов, которые есть в обоих текстах, но у них разные не нулевые частоты встречаемости')
+    print(str( len(difference) - len(only_vosk_find) - len(only_other_find)))
+    print('  Количество уникальных слов, которые нашел vosk, но не было в другом тексте')
+    print(str(len(only_vosk_find)))
+    print('  Количество уникальных  слов, которые были в другом тексте, но vosk не распознал или распознал иначе')
+    print(str(len(only_other_find)))
+    print('\n')
+    print('Приложение:' +'\n' +'Список уникальных слов, которые были в другом тексте, но vosk не распознал или распознал иначе:')
+    print([x for x in only_other_find])
+    print('\n')
+    print('\n')	
