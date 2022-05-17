@@ -2,6 +2,7 @@
 import pysftp 
 import os
 import time
+import stat
 
 my_Hostname = "193.168.46.90" 
 my_Username = "root" 
