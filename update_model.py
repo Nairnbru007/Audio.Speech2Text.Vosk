@@ -58,10 +58,14 @@ with pysftp.Connection(
     username = my_Username, 
     password = my_Password 
     ) as sftp: 
-    print("Connection succesfully established ... ") 
+    print("Connection succesfully established ... ")
+    print('.....1/4....')
     getting_(sftp,remote_dir_graph,local_dir_graph)
+    print('.....2/4....')
     getting_(sftp,remote_dir_rescore, local_dir_rescore, file1)
+    print('.....3/4....')
     getting_(sftp,remote_dir_rescore, local_dir_rescore, file2)
+    print('.....4/4....')
     getting_(sftp,remote_dir_rnnlm, local_dir_rnnlm)
 print('DONE')
          
