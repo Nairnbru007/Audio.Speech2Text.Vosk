@@ -49,7 +49,7 @@ def getting_(sftp,remote_path, local_path, file='__all__'):
              sftp.get(attr.filename,local_path+attr.filename)
              print('dowloadng ' + attr.filename+ '  ...')
              trigger=True
-        if trigget==False:
+        if trigger==False:
           print('File not found: '+ file)
  
 
