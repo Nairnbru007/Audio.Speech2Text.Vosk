@@ -28,22 +28,28 @@ if not os.path.exists(local_dir_rnnlm):
     os.makedirs(local_dir_rnnlm)
 
 def getting_(sftp,remote_path, local_path, file='__all__'):
-    start_time = time.time()
     print('Preparing: '+local_path +'  ...')
-    sftp.cwd('/root/vosk-model-en-us-0.22-compile/'+remote_path) 
-    dir_struct = sftp.listdir_attr() 
+    sftp.cwd('/root/vosk-model-en-us-0.22-compile/'+remote_path)
+    dir_struct = sftp.listdir_attr()
     if file=='__all__':
-      for attr in dir_struct: 
-        print('dowloadng ' + attr.filename+ '  ...')
-        sftp.get(attr.filename,local_path+attr.filename)
+      for attr in dir_struct:
+        if stat.S_ISDIR(attr.st_mode):
+          print('SUBDIR '+attr.filename)
+          getting_(sftp,remote_path+attr.filename,local_path+attr.filename)
+          print('END_SUBDIR '+attr.filename)
+          sftp.cwd('/root/vosk-model-en-us-0.22-compile/'+remote_path)
+        else:
+          print('dowloadng ' + attr.filename+ '  ...')
+          sftp.get(attr.filename,local_path+attr.filename)
     else:
-    	for attr in dir_struct: 
+        trigger=False
+        for attr in dir_struct:
           if attr.filename==file:
              sftp.get(attr.filename,local_path+attr.filename)
              print('dowloadng ' + attr.filename+ '  ...')
-          else:
-          	print('File not found: '+ file)
-    print("--OK-- %s seconds ---" % (time.time() - start_time))
+             trigger=True
+        if trigget==False:
+          print('File not found: '+ file)
  
 
 with pysftp.Connection( 
@@ -54,6 +60,7 @@ with pysftp.Connection(
     print("Connection succesfully established ... ") 
     getting_(sftp,remote_dir_graph,local_dir_graph)
     getting_(sftp,remote_dir_rescore, local_dir_rescore, file1)
+    getting_(sftp,remote_dir_rescore, local_dir_rescore, file2)
     getting_(sftp,remote_dir_rnnlm, local_dir_rnnlm)
 print('DONE')
          
