@@ -1,12 +1,12 @@
-# importing the required module 
-import pysftp 
+# importing the required module
+import pysftp
 import os
 import time
 import stat
 
-my_Hostname = "193.168.46.90" 
-my_Username = "root" 
-my_Password = "Beget2022!" 
+my_Hostname = "193.168.46.90"
+my_Username = "root"
+my_Password = "Beget2022!"
 # path in docker
 local_dir_graph='/opt/vosk-model-en/model/graph/'
 local_dir_rescore='/opt/vosk-model-en/model/rescore/'
@@ -17,13 +17,13 @@ remote_dir_rescore='data/lang_test_rescore/'
 file1='G.fst'
 file2='G.carpa'
 remote_dir_rnnlm='exp/rnnlm_out/'
-    
+
 #local_dir_graph='model_new/exp/chain/tdnn/graph'
 if not os.path.exists(local_dir_graph):
     os.makedirs(local_dir_graph)
 #local_dir='model_new/rescore'
 if not os.path.exists(local_dir_rescore):
-    os.makedirs(local_dir_rescore) 
+    os.makedirs(local_dir_rescore)
 #local_dir='model_new/rnnlm'
 if not os.path.exists(local_dir_rnnlm):
     os.makedirs(local_dir_rnnlm)
@@ -51,13 +51,13 @@ def getting_(sftp,remote_path, local_path, file='__all__'):
              trigger=True
         if trigger==False:
           print('File not found: '+ file)
- 
 
-with pysftp.Connection( 
-    host = my_Hostname, 
-    username = my_Username, 
-    password = my_Password 
-    ) as sftp: 
+
+with pysftp.Connection(
+    host = my_Hostname,
+    username = my_Username,
+    password = my_Password
+    ) as sftp:
     print("Connection succesfully established ... ")
     print('.....1/4....')
     getting_(sftp,remote_dir_graph,local_dir_graph)
@@ -68,5 +68,4 @@ with pysftp.Connection(
     print('.....4/4....')
     getting_(sftp,remote_dir_rnnlm, local_dir_rnnlm)
 print('DONE')
-         
 
